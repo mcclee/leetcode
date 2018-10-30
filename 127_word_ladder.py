@@ -16,13 +16,13 @@ from collections import deque
 class Solution:
 
     def __init__(self):
-        self.wordlist = None
         self.l = 0
         self.wordlength = 0
         self.input = [1]
         self.output = [1]
         self.pool = None
-
+        self.epool = {}
+        self.alp = [chr(i) for i in range(97, 123)]
 
     def ladderLength(self, beginWord, endWord, wordList):
         """
@@ -31,9 +31,8 @@ class Solution:
         :type wordList: List[str]
         :rtype: int
         """
-        self.wordlist = wordList
-        self.pool = set(self.wordlist)
-        if endWord not in wordList:
+        self.pool = set(wordList)
+        if endWord not in self.pool:
             return 0
         self.l = len(wordList)
         self.wordlength = len(beginWord)
@@ -50,7 +49,9 @@ class Solution:
                 curlist = self.output
                 nextlist = self.input
             for j in curlist[-1]:
-                now = now | self.findonedif(j)
+                if j not in self.epool:
+                    self.epool[j] = self.findonedif(j)
+                now = now | self.epool[j]
             step += 1
             curlist.append(now)
             curlist[0] += len(now)
@@ -86,16 +87,16 @@ class Solution:
 
     def findonedif(self, word):
         ans = set()
-        self.pool.pop(word)
-        alb = [chr(i) for i in range(97,123)]
+        if word in self.pool:
+            self.pool.remove(word)
         for i in range(self.wordlength):
             cb = word[:i]
             ca = word[i + 1:]
             cletter = word[i]
-            for j in alb:
+            for j in self.alp:
                 if j != cletter:
                     cword = cb + j + ca
-                    if cword in s:
+                    if cword in self.pool:
                         ans.add(cword)
         return ans
 
